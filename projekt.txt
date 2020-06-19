@@ -1,0 +1,15 @@
+Snake to dość popularna gra której mechanika jest dość prosta. W grze występuje tytułowy snake, który zjada przedmioty rozrastając się i zajmują większą powierzchnię okna. Rozgrywka trwa dopóki gracz przez przypadek nie wpadnie w ścianę lub snake nie zje samego siebie. Można dodawać wiele funkcji które urozmaicą rozgrywkę w postaci na przykład dźwięków czy wizualizacji. 
+
+
+
+W projekcie zostaną wykorzystane biblioteki z zakresu sfml
+
+Wstępnie zakładam ,że w projekcie znajdą się odpowiednie klasy odpowiedzialne za pewne czynności.
+klasa jedzenie odpowiadająca za przedmioty zmieniające długośc węża
+klasa snake odpowiadająca za długość, pozycje, ruch, dodawanie części, odejmowanie częsci.
+klasa data odpowiadająca za wiekość okna oraz za wyni uzyskanu w grze
+klasa draw odpowiadająca za rysowanie i doświerzanie okna.
+klasa game odpowiadająca za spięcie wszyskiego razem aby zminimalizować ilość kodu w maine
+
+Repozytorium na github
+https://github.com/AdamTroszynski/Projekt-PSiO.git
