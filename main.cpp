@@ -7,81 +7,27 @@
 #include <sstream>
 #include <vector>
 #include <cstdlib>
-class Informacje
+#include <Okna.h>
+#include <informacje.h>
+#include <dzwiek.h>
+#include <Kolizja.h>
+class Tekstury
 {
 public:
-    Informacje()
-    {
-        wynik = 0;
-        funkcja = MENU;
-    };
-    int wynik;
-    enum PossibleGameStates { GRA, MENU, WYNIK, KONIEC };
-    PossibleGameStates funkcja;
+    Tekstury(){
+        tekstura1.loadFromFile("Texture/teksturamenu.jpg");
+        tekstura2.loadFromFile("Texture/teksturamenu.jpg");
+        tekstura3.loadFromFile("Texture/teksturamenu.jpg");
+        tekstura4.loadFromFile("Texture/teksturamenu.jpg");
 
-    static std::string convertIntToString(int liczba)
-    {
-        std::ostringstream zmianainnast;
-        zmianainnast << liczba;
-        std::string tekst = zmianainnast.str();
-        return tekst;
-    };
-    static const int WielkoscCzesci = 5;//wielkośćczęściwężaorazszybkość
-    static const int WysokoscOkna = 600;//wysokość okna
-    static const int SzerokoscOkna = 800;//szerokość okna
-    static constexpr const char* NazwaGry = "Snake";
-
-    static int generator(int from, int to)
-        {
-            return rand()%(to-from+1)+from;
-        };
-
+    }
+sf::Texture tekstura1;
+sf::Texture tekstura2;
+sf::Texture tekstura3;
+sf::Texture tekstura4;
 };
-class Przeszkoda
-{
-public:
-    sf::RectangleShape rec;
-    sf::Vector2f getPosition(){return rec.getPosition();}
-    sf::Vector2f getSize(){return rec.getSize();};
-    void setTexture(sf::Texture tekstura){rec.setTexture(&tekstura);}
-};
-class Kolizja
-{
-public:
-    bool JestKolizja(Przeszkoda &p1, Przeszkoda &p2)
-    {
-        refreshWspolzedne(p1,p2);
-        if(ywspolzednep1+wysokoscp1 > ywspolzednep2 && xwspolzednep1 < xwspolzednep2+szerokoscp2 && ywspolzednep1 < ywspolzednep2+wysokoscp2 && xwspolzednep1+szerokoscp1 > xwspolzednep2 ){
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-private:
-    float xwspolzednep1;
-    float ywspolzednep1;
-    float xwspolzednep2;
-    float ywspolzednep2;
-    float szerokoscp1;
-    float wysokoscp1;
-    float szerokoscp2;
-    float wysokoscp2;
 
-    void refreshWspolzedne(Przeszkoda &p1, Przeszkoda &p2)
-        {
-            szerokoscp1 = p1.getSize().x;
-            wysokoscp1 = p1.getSize().y;
-            szerokoscp2 = p2.getSize().x;
-            wysokoscp2 = p2.getSize().y;
-            xwspolzednep1 = p1.getPosition().x;
-            ywspolzednep1 = p1.getPosition().y;
-            xwspolzednep2 = p2.getPosition().x;
-            ywspolzednep2 = p2.getPosition().y;
-
-        };
-};
-class CzescW : public Przeszkoda
+class CzescW : public Przeszkoda//, Tekstury
 {
 public:
     enum Kierunki{ GORA, DOL, LEWO = 3, PRAWO = 4 };
@@ -89,17 +35,13 @@ public:
 
     CzescW()
     {
-        rec.setFillColor(sf::Color::Green);
-        rec.setTexture(&tekstura);
+        rec.setFillColor(sf::Color::White);
+        //rec.setTexture(&tekstura1);
         rec.setSize(sf::Vector2f(Informacje::WielkoscCzesci,Informacje::WielkoscCzesci));
         ruchpoczatkowy = LEWO;
     };
-    void ustawTekstura(sf::Texture tekstura)
-    {
-        this->tekstura = tekstura;
-    };
 private:
-    sf::Texture tekstura;
+    //sf::Texture tekstura;
 };
 class Waz : public sf::Sprite
 {
@@ -121,8 +63,25 @@ public:
     {
         dlugosc += pluslubminus;
 
-        if(pluslubminus > 0) dodawanieczesci(pluslubminus);
-        else if(pluslubminus < 0) usuwanieczesci(pluslubminus);
+        if(pluslubminus > 0){
+            for(int i=0; i<pluslubminus; i++)
+            {
+               czesci.push_back(CzescW());
+
+                if(czesci.size() > 1){
+                    czesci[czesci.size()-1].rec.setPosition(wspolrzednenowejczesci());
+                    czesci[czesci.size()-1].ruchpoczatkowy = czesci[czesci.size()-2].ruchpoczatkowy;
+                }
+                else {
+                    czesci[czesci.size()-1].rec.setPosition(nasrodku());
+                }
+            }}
+        else if(pluslubminus < 0){
+            for(int i=0; i<(pluslubminus-1); i++)
+            {
+                if(czesci.size() > 0) czesci.pop_back();
+            }
+        }
     };
     std::vector <CzescW> czesci;
 
@@ -189,7 +148,7 @@ public:
 private:
 
     Kolizja kolizja;
-
+    //sf::Texture tekstura;
     bool cobrot(CzescW::Kierunki kierunek)
     {
         if(czesci.size() > 0){
@@ -198,21 +157,6 @@ private:
         }
         else {
             return false;
-        }
-    };
-    void dodawanieczesci(int liczbac)
-    {
-        for(int i=0; i<liczbac; i++)
-        {
-           czesci.push_back(CzescW());
-
-            if(czesci.size() > 1){
-                czesci[czesci.size()-1].rec.setPosition(wspolrzednenowejczesci());
-                czesci[czesci.size()-1].ruchpoczatkowy = czesci[czesci.size()-2].ruchpoczatkowy;
-            }
-            else {
-                czesci[czesci.size()-1].rec.setPosition(nasrodku());
-            }
         }
     };
     void usuwanieczesci(int liczbac)
@@ -252,62 +196,9 @@ private:
         }
         return wektor;
     };
+
 };
-class Dzwiek
-{
-public:
-    sf::SoundBuffer sB1dzwiek;
-    sf::SoundBuffer sB2dzwiek;
-    sf::SoundBuffer sB3dzwiek;
-
-    sf::Sound s1dzwiek;
-    sf::Sound s2dzwiek;
-
-    sf::Music m1dzwiek;
-    sf::Music m2dzwiek;
-
-    enum Dzwieki { WOLNO, SZYBKO, POCISK, MUS1, MUS2 };
-
-    Dzwiek()
-    {
-        sB1dzwiek.loadFromFile("data/slowDown");
-        sB2dzwiek.loadFromFile("data/speedUp");
-        sB3dzwiek.loadFromFile("data/laserShot");
-        m1dzwiek.openFromFile("data/Ending.wav");
-        m2dzwiek.openFromFile("data/TitleScreen.wav");
-
-        m1dzwiek.setLoop(true);
-        m2dzwiek.setLoop(true);
-    };
-    void play(Dzwieki muzyka)
-    {
-        if(muzyka == SZYBKO){
-            s1dzwiek.setBuffer(sB2dzwiek);
-            s1dzwiek.play();
-        }
-        if(muzyka == WOLNO){
-            s1dzwiek.setBuffer(sB1dzwiek);
-            s1dzwiek.play();
-        }
-        if(muzyka == POCISK){
-            s2dzwiek.setBuffer(sB3dzwiek);
-            s2dzwiek.play();
-        }
-        if(muzyka == MUS1){
-            if(m1dzwiek.getStatus() == sf::SoundSource::Status::Stopped){
-                m1dzwiek.play();
-            }
-            if(m2dzwiek.getStatus() == sf::SoundSource::Status::Playing){
-                m2dzwiek.stop();
-            }
-        }
-        if(muzyka == MUS2){
-            m1dzwiek.stop();
-            m2dzwiek.play();
-        }
-    };
-};
-class Jablko : public Przeszkoda, public sf::Sprite
+class Jablko : public Przeszkoda, public sf::Sprite//,Tekstury
 {
 public:
     int zmianadlugosci;
@@ -318,28 +209,23 @@ public:
         rodzaj = Rodzaj(losujrodzaj());
         zmianadlugosci = losujrozmiar();
         rec.setPosition(losujwspolzedne());
-        rec.setTexture(&this->teksturaj);
+        //rec.setTexture(&tekstura1);
     };
     virtual void draw(sf::RenderTarget& cel, sf::RenderStates) const
         {
             cel.draw(rec);
         };
 
-    void TeksturaJablka(sf::Texture tekstura)
-    {
-
-           Tekstura(tekstura);
-    };
-
+//    void TeksturaJ(sf::Texture tekstura)
+//    {
+//        this->teksturaj = tekstura;
+//    };
 
 
 private:
 
 sf::Texture teksturaj;
-void Tekstura(sf::Texture tekstura)
-{
-    this->teksturaj = tekstura;
-};
+
 
 
 
@@ -359,14 +245,14 @@ void Tekstura(sf::Texture tekstura)
         rec.setSize(sf::Vector2f(losujrozmiar,losujrozmiar));
 
         if(rodzaj == Rodzaj::ZEPSUTE){
-            rec.setTexture(&this->teksturaj);
+            rec.setTexture(&teksturaj);
             rec.setFillColor(sf::Color(170,0,0));
 
             return -losujrozmiar;
         }
         else {
 
-            rec.setTexture(&this->teksturaj);
+            rec.setTexture(&teksturaj);
             rec.setFillColor(sf::Color(0,255,0));
 
             return losujrozmiar;
@@ -436,10 +322,10 @@ public:
 
 
 };
-class Game
+class Gra
 {
 public:
-    Game(sf::RenderWindow &window, Informacje &informacje, sf::Font czcionka, sf::Texture tekstura)
+    Gra(sf::RenderWindow &window, Informacje &informacje, sf::Font czcionka, sf::Texture tekstura)
     {
         this->tekstura = tekstura;
         this->czcionka = czcionka;
@@ -468,9 +354,9 @@ public:
                     if(event.key.code == sf::Keyboard::Space){
                         if(tempo == N){
                             tempo = W;
-                            dzwieki.play(Dzwiek::WOLNO);
+                            dzwieki.odtworz(Dzwiek::WOLNO);
                         }
-                        else{tempo = N;dzwieki.play(Dzwiek::SZYBKO);}
+                        else{tempo = N;dzwieki.odtworz(Dzwiek::SZYBKO);}
                     if(event.key.code == sf::Keyboard::B){informacje->funkcja = Informacje::MENU;}
 
                     }
@@ -482,7 +368,7 @@ public:
             refreshpocisk();
 
 
-            czesc.ustawTekstura(tekstura);
+            //jablko.TeksturaJ(tekstura);
             sf::Vector2f mouse(sf::Mouse::getPosition(*window));
             if(pocisk.rec.getGlobalBounds().contains(mouse)){
                 pocisk.dezintegracja();
@@ -499,19 +385,24 @@ public:
             tekstura.setRepeated(true);
             sprite_grass.setTextureRect(sf::IntRect(0, 0, 800, 600));
             window->draw(sprite_grass);
-            //window->draw(interface);
+
             window->draw(waz);
             window->draw(pocisk.rec);
-
-            for(size_t i=0; i<jablka.size(); i++)
-            {
-                window->draw(jablka[i]);
-            }
-
+            rysjablka();
             window->display();
+
         }
     };
 private:
+
+    void rysjablka(){
+        for(size_t i=0; i<jablka.size(); i++)
+        {
+            window->draw(jablka[i]);
+        }
+
+
+    };
 bool koniecgry()
     {
         if(waz.kanibalizm() || waz.pozaekran() || waz.dlugosc <= 0){
@@ -603,7 +494,7 @@ void refreshpocisk()
 
         if(strzal()){
             pocisk.porusza = true;
-            dzwieki.play(Dzwiek::POCISK);
+            dzwieki.odtworz(Dzwiek::POCISK);
         }
 
         if(pocisk.porusza){
@@ -653,260 +544,65 @@ void obciecie()
     std::vector <Jablko> jablka;
 
 };
-class Okno
-{
-public:
-    virtual void pokaz() = 0;
-protected:
-
-sf::RenderWindow *window;
-sf::Font czcionka;
-sf::Text naglowek;
-std::string tresc;
-Informacje *informacje;
-sf::Text *funkcje;
-std::string *opcjestr;
-void ustawienianaglowka()
-    {
-        naglowek.setFont(czcionka);
-        naglowek.setCharacterSize(80);
-        naglowek.setString(tresc);
-        naglowek.setPosition(wysrodkowanie(naglowek)+50,60);
-        naglowek.setFillColor(sf::Color::Blue);
-    };
-
-void zmianakoloru(sf::Vector2f &wspolzednem) const
-{
-    for(int i=0; i<iloscopcji; i++)
-    {
-        if(funkcje[i].getGlobalBounds().contains(wspolzednem)){
-            funkcje[i].setFillColor(sf::Color::Red);
-        }
-        else{
-            funkcje[i].setFillColor(sf::Color::Black);
-        }
-    }
-};
-int iloscopcji;
-void funkcjeprzyciskow()
-    {
-        for(int i=0; i<iloscopcji; i++)
-        {
-            funkcje[i].setFont(czcionka);
-            funkcje[i].setString(opcjestr[i]);
-            funkcje[i].setCharacterSize(50);
-            funkcje[i].setPosition(wysrodkowanie(funkcje[i]), 2*60 + 100*(i+1));
-            funkcje[i].setFillColor(sf::Color::Black);
-        }
-    };
-float wysrodkowanie(sf::Text &text) const
-    {
-        return Informacje::SzerokoscOkna/2 - text.getGlobalBounds().width/2;
-    };
-
-};
-class Menu : Okno
-{
-public:
-virtual void pokaz()
-    {
-        while(informacje->funkcja == Informacje::MENU)
-        {
-            sf::Vector2f wspolzednem(sf::Mouse::getPosition(*window));
-            sf::Event event;
-
-            while(window->pollEvent(event))
-            {
-                if(event.type == sf::Event::KeyPressed && event.key.code == (sf::Keyboard::Escape|| event.type == sf::Event::Closed)){
-                    informacje->funkcja = Informacje::KONIEC;
-                }
-
-                if(event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left){
-                    if(funkcje[0].getGlobalBounds().contains(wspolzednem)){
-                        informacje->funkcja = Informacje::GRA;
-                    }
-                    else if(funkcje[1].getGlobalBounds().contains(wspolzednem)){
-                        informacje->funkcja = Informacje::KONIEC;
-                    }
-                }
-            }
-            zmianakoloru(wspolzednem);
-            sf::Sprite sprite_grass;
-            sprite_grass.setTexture(tekstura);
-            tekstura.setRepeated(true);
-            sprite_grass.setTextureRect(sf::IntRect(0, 0, 800, 600));
-            window->clear(sf::Color::White);
-            window->draw(sprite_grass);
-            window->draw(naglowek);
-            for(int i=0; i<iloscopcji; i++)
-            {
-                window->draw(funkcje[i]);
-            }
-
-            window->display();
-        }
-    };
- Menu(sf::RenderWindow &window, Informacje &informacje, sf::Font czcionka,sf::Texture tekstura)
-    {
-        this->window = &window;
-        this->tekstura = tekstura;
-        this->czcionka = czcionka;
-        this->informacje = &informacje;
-
-        tresc = Informacje::NazwaGry;
-
-        iloscopcji = 2;
-        funkcje = new sf::Text[iloscopcji];
-        opcjestr = new std::string[iloscopcji];
-        opcjestr[0] = "GRAJ";
-        opcjestr[1] = "WYJSCIE";
-
-        ustawienianaglowka();
-        funkcjeprzyciskow();
-    };
-~Menu()
-    {
-        delete[] funkcje;
-        delete[] opcjestr;
-    };
-
-private:
-    sf::Texture tekstura;
-
-};
-class Wynik : Okno
-{
-public:
-    virtual void pokaz()
-    {
-        while(informacje->funkcja == Informacje::WYNIK)
-        {
-            sf::Vector2f wspolzednem(sf::Mouse::getPosition(*window));
-            sf::Event event;
-            while(window->pollEvent(event))
-            {
-                if(event.type == sf::Event::KeyPressed && (event.key.code == sf::Keyboard::Escape|| event.type == sf::Event::Closed)){
-                    informacje->funkcja = Informacje::KONIEC;
-                }
-
-                if(event.type == sf::Event::MouseButtonReleased && event.key.code == sf::Mouse::Left){
-                    if(funkcje[0].getGlobalBounds().contains(wspolzednem)){
-                        informacje->funkcja = Informacje::GRA;
-                    }
-                    else if(funkcje[1].getGlobalBounds().contains(wspolzednem)){
-                        informacje->funkcja = Informacje::MENU;
-                    }
-                }
-            }
-            zmianakoloru(wspolzednem);
-            sf::Sprite sprite_grass;
-            sprite_grass.setTexture(tekstura);
-            tekstura.setRepeated(true);
-            sprite_grass.setTextureRect(sf::IntRect(0, 0, 800, 600));
-
-            window->clear(sf::Color::White);
-            window->draw(sprite_grass);
-            window->draw(naglowek);
-
-            for(int i=0; i<iloscopcji; i++)
-            {
-                window->draw(funkcje[i]);
-            }
-
-            window->display();
-        }
-    };
-Wynik(sf::RenderWindow &window, Informacje &informacje, sf::Font czcionka, sf::Texture tekstura)
-    {
-        this->window = &window;
-        this->tekstura = tekstura;
-        this->czcionka = czcionka;
-        this->informacje = &informacje;
-
-
-
-        std::string wynik = Informacje::convertIntToString(informacje.wynik);
-        std::string text = "TWOJ WYNIK: ";
-        tresc = text + wynik;
-
-        iloscopcji = 2;
-        funkcje = new sf::Text[iloscopcji];
-        opcjestr = new std::string[iloscopcji];
-        opcjestr[0] = "SPROBOJ PONOWNIE";
-        opcjestr[1] = "POWROT DO MENU";
-
-        ustawienianaglowka();
-        funkcjeprzyciskow();
-    };
-~Wynik()
-    {
-        delete[] funkcje;
-        delete[] opcjestr;
-    };
-
-protected:
-    sf::Texture tekstura;
-};
 class Inicjalizacja
 {
 public:
     Inicjalizacja()
     {
         window.create(sf::VideoMode(Informacje::SzerokoscOkna,Informacje::WysokoscOkna),Informacje::NazwaGry);
-        lczcionka();
-        loadTexture();
+        //Tekstury();
+        tekstura3.loadFromFile("Texture/teksturamenu.jpg");
+        tekstura2.loadFromFile("Texture/trawa.jpg");
+        czcionka.loadFromFile("data/Bleeding_Cowboys.ttf");
+
+        //czesc.ustawTekstura(tekstura3);
+
         srand(time(NULL));
     };
 void start(){
         while(window.isOpen())
         {
-            if(informacje.funkcja == Informacje::GRA){startgry();}
-            if(informacje.funkcja == Informacje::MENU){menu();}
-            if(informacje.funkcja == Informacje::WYNIK){wynik();}
+            if(informacje.funkcja == Informacje::MENU)
+            {
+                oknomenu Menu(window, informacje, czcionka, tekstura3);
+                dzwiek.odtworz(Dzwiek::OKNA);
+                Menu.pokaz();
+            }
+            if(informacje.funkcja == Informacje::POMOC)
+            {
+                oknopomocy pomoc(window, informacje , czcionka, tekstura3);
+                dzwiek.odtworz(Dzwiek::OKNA);
+                pomoc.pokaz();
+            }
+            if(informacje.funkcja == Informacje::GRA)
+            {
+                Gra gra(window, informacje, czcionka, tekstura2);
+                dzwiek.odtworz(Dzwiek::GRA);
+                gra.start();
+            }
+
+            if(informacje.funkcja == Informacje::WYNIK)
+            {
+                oknowyniku wynik(window, informacje, czcionka, tekstura3);
+                dzwiek.odtworz(Dzwiek::OKNA);
+                wynik.pokaz();
+            }
+
             if(informacje.funkcja == Informacje::KONIEC){window.close();}
+
         }
     };
 private:
 sf::RenderWindow window;
-Jablko jablko;
 Informacje informacje;
 sf::Font czcionka;
-sf::Texture tekstura;
+//sf::Texture tekstura;
 sf::Texture tekstura2;
 sf::Texture tekstura3;
-sf::Texture tekstura4;
-Dzwiek audioController;
+//sf::Texture tekstura4;
+Dzwiek dzwiek;
+CzescW czesc;
 
-    void loadTexture()
-    {
-        //tekstura.loadFromFile("Texture/hero.png");
-        //tekstura2.loadFromFile("Texture/wall.png");
-        tekstura3.loadFromFile("Texture/grass.png");
-        //tekstura4.loadFromFile("Texture/monster.png");
-    };
-
-void lczcionka()
-    {
-        czcionka.loadFromFile("data/Bleeding_Cowboys.ttf");
-    };
-void startgry()
-    {
-        Game game(window, informacje, czcionka, tekstura3);
-        audioController.play(Dzwiek::MUS2);
-        game.start();
-    };
-void menu()
-    {
-        Menu Menu(window, informacje, czcionka, tekstura3);
-        audioController.play(Dzwiek::MUS1);
-        Menu.pokaz();
-    };
-void wynik()
-    {
-        Wynik vScore(window, informacje, czcionka, tekstura3);
-        audioController.play(Dzwiek::MUS1);
-        vScore.pokaz();
-    };
 };
 
 int main()
