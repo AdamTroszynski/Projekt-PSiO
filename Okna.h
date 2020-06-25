@@ -101,7 +101,6 @@ public:
             }
         }
     };
-
     sf::Font czcionka;
     std::string tresc;
     Informacje *informacje;
@@ -151,7 +150,6 @@ public:
                 sprite_grass.setTexture(tekstura);
                 tekstura.setRepeated(true);
                 sprite_grass.setTextureRect(sf::IntRect(0, 0, 800, 600));
-
                 window->clear(sf::Color::White);
                 window->draw(sprite_grass);
                 window->draw(naglowek2);
@@ -217,7 +215,6 @@ public:
             }
         }
     };
-protected:
     sf::Font czcionka;
     std::string tresc;
     Informacje *informacje;
@@ -333,7 +330,6 @@ public:
             }
         }
     };
-protected:
     sf::Font czcionka;
     std::string tresc;
     Informacje *informacje;

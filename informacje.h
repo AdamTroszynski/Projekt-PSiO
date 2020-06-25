@@ -24,6 +24,14 @@ public:
     static const int WysokoscOkna = 600;//wysokość okna
     static const int SzerokoscOkna = 800;//szerokość okna
     static constexpr const char* NazwaGry = "Snake";
+    static const int Kolor_weza_R = 255;
+    static const int Kolor_weza_G = 255;
+    static const int Kolor_weza_B = 255;
+    static const int Kolor_pocisku_R = 255;
+    static const int Kolor_pocisku_G = 255;
+    static const int Kolor_pocisku_B = 0;
+    static constexpr float czasgenjablka = 3.0;
+    static constexpr float czaspocisku = 5;
     static int generator(int od, int doo)
         {
             return rand()%(doo-od+1)+od;

@@ -8,12 +8,6 @@ public:
     sf::RectangleShape rec;
     sf::Vector2f getPosition(){return rec.getPosition();}
     sf::Vector2f getSize(){return rec.getSize();};
-    void setTexture(sf::Texture tekstura){
-        rec.setTexture(&tekstura);}
-
-private:
-    sf::Texture tektura;
-
 };
 class Kolizja
 {
@@ -28,6 +22,8 @@ public:
             return false;
         }
     };
+
+
 private:
     float xwspolzednep1;
     float ywspolzednep1;

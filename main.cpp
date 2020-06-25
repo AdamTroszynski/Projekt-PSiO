@@ -11,37 +11,18 @@
 #include <informacje.h>
 #include <dzwiek.h>
 #include <Kolizja.h>
-class Tekstury
+class CzescW : public Przeszkoda
 {
 public:
-    Tekstury(){
-        tekstura1.loadFromFile("Texture/teksturamenu.jpg");
-        tekstura2.loadFromFile("Texture/teksturamenu.jpg");
-        tekstura3.loadFromFile("Texture/teksturamenu.jpg");
-        tekstura4.loadFromFile("Texture/teksturamenu.jpg");
-
-    }
-sf::Texture tekstura1;
-sf::Texture tekstura2;
-sf::Texture tekstura3;
-sf::Texture tekstura4;
-};
-
-class CzescW : public Przeszkoda//, Tekstury
-{
-public:
-    enum Kierunki{ GORA, DOL, LEWO = 3, PRAWO = 4 };
+    enum Kierunki{ GORA, DOL, LEWO = 3, PRAWO};
     Kierunki ruchpoczatkowy;
 
     CzescW()
     {
-        rec.setFillColor(sf::Color::White);
-        //rec.setTexture(&tekstura1);
+        rec.setFillColor(sf::Color(Informacje::Kolor_weza_R, Informacje::Kolor_weza_G, Informacje::Kolor_weza_B));
         rec.setSize(sf::Vector2f(Informacje::WielkoscCzesci,Informacje::WielkoscCzesci));
         ruchpoczatkowy = LEWO;
     };
-private:
-    //sf::Texture tekstura;
 };
 class Waz : public sf::Sprite
 {
@@ -50,16 +31,17 @@ public:
     Waz()
     {
         dlugosc = 0;
-        rozmiarwaz(1);
+        dlugoscwaz(3);
     };
     virtual void draw(sf::RenderTarget& cel, sf::RenderStates) const
     {
         for(size_t i=0; i<czesci.size(); i++)
         {
             cel.draw(czesci[i].rec);
+
         }
     };
-    void rozmiarwaz(int pluslubminus)
+    void dlugoscwaz(int pluslubminus)
     {
         dlugosc += pluslubminus;
 
@@ -89,14 +71,10 @@ public:
     {
         for(size_t i=0; i<czesci.size(); i++)
         {
-            switch(czesci[i].ruchpoczatkowy)
-            {
-                case CzescW::LEWO: czesci[i].rec.move(-Informacje::WielkoscCzesci,0); break;
-                case CzescW::PRAWO: czesci[i].rec.move(Informacje::WielkoscCzesci,0); break;
-                case CzescW::GORA: czesci[i].rec.move(0,-Informacje::WielkoscCzesci); break;
-                case CzescW::DOL: czesci[i].rec.move(0,Informacje::WielkoscCzesci); break;
-
-            }
+            if(czesci[i].ruchpoczatkowy == CzescW::LEWO){czesci[i].rec.move(-Informacje::WielkoscCzesci,0);};
+            if(czesci[i].ruchpoczatkowy == CzescW::PRAWO){czesci[i].rec.move(Informacje::WielkoscCzesci,0);};
+            if(czesci[i].ruchpoczatkowy == CzescW::GORA){czesci[i].rec.move(0,-Informacje::WielkoscCzesci);};
+            if(czesci[i].ruchpoczatkowy == CzescW::DOL){czesci[i].rec.move(0,Informacje::WielkoscCzesci);};
         }
     };
     void refreshczesci()
@@ -145,10 +123,9 @@ public:
         }
     };
 
-private:
+
 
     Kolizja kolizja;
-    //sf::Texture tekstura;
     bool cobrot(CzescW::Kierunki kierunek)
     {
         if(czesci.size() > 0){
@@ -198,37 +175,24 @@ private:
     };
 
 };
-class Jablko : public Przeszkoda, public sf::Sprite//,Tekstury
+class Jablko : public Przeszkoda, public sf::Sprite
 {
 public:
     int zmianadlugosci;
-    enum Rodzaj { DOBRE, ZEPSUTE };
+    enum Rodzaj {DOBRE, ZEPSUTE};
     Rodzaj rodzaj;
     Jablko()
     {
         rodzaj = Rodzaj(losujrodzaj());
         zmianadlugosci = losujrozmiar();
         rec.setPosition(losujwspolzedne());
-        //rec.setTexture(&tekstura1);
     };
-    virtual void draw(sf::RenderTarget& cel, sf::RenderStates) const
+    virtual void draw(sf::RenderTarget& cel,sf::RenderStates) const
         {
             cel.draw(rec);
+
         };
-
-//    void TeksturaJ(sf::Texture tekstura)
-//    {
-//        this->teksturaj = tekstura;
-//    };
-
-
-private:
-
-sf::Texture teksturaj;
-
-
-
-
+//sf::Texture teksturaj;
     int losujrodzaj()
     {
         int los = Informacje::generator(0,20);
@@ -245,14 +209,14 @@ sf::Texture teksturaj;
         rec.setSize(sf::Vector2f(losujrozmiar,losujrozmiar));
 
         if(rodzaj == Rodzaj::ZEPSUTE){
-            rec.setTexture(&teksturaj);
-            rec.setFillColor(sf::Color(170,0,0));
+            //rec.setTexture(&teksturaj);
+            rec.setFillColor(sf::Color(150,0,0));
 
             return -losujrozmiar;
         }
         else {
 
-            rec.setTexture(&teksturaj);
+            //rec.setTexture(&teksturaj);
             rec.setFillColor(sf::Color(0,255,0));
 
             return losujrozmiar;
@@ -277,7 +241,8 @@ public:
     bool uszkodzenie;
     Pocisk()
     {
-        rec.setFillColor(sf::Color::Red);
+        rec.setFillColor(sf::Color(Informacje::Kolor_pocisku_R,Informacje::Kolor_pocisku_G,Informacje::Kolor_pocisku_B));
+
         porusza = false;
         uszkodzenie = true;
     };
@@ -285,7 +250,6 @@ public:
     {
         pozycja = Pozycja(Informacje::generator(0,3));
         int losuj = Informacje::generator(50,Informacje::WysokoscOkna-50);
-
         if(pozycja == GORA){rec.setPosition(losuj,Informacje::WysokoscOkna+5);rec.setSize(sf::Vector2f(10,150));}
         if(pozycja == DOL){rec.setPosition(losuj,-205);rec.setSize(sf::Vector2f(10,200));}
         if(pozycja == LEWO){rec.setPosition(Informacje::SzerokoscOkna+205,losuj);rec.setSize(sf::Vector2f(150,10));}
@@ -311,12 +275,12 @@ public:
     };
     void restart()
     {
-        rec.setFillColor(sf::Color::Red);
+        rec.setFillColor(sf::Color(Informacje::Kolor_pocisku_R,Informacje::Kolor_pocisku_G,Informacje::Kolor_pocisku_B));
         uszkodzenie = true;
     };
     void dezintegracja()
     {
-        rec.setFillColor(sf::Color::Black);
+        rec.setFillColor(sf::Color(Informacje::Kolor_pocisku_R*0,Informacje::Kolor_pocisku_G*0,Informacje::Kolor_pocisku_B*0));
         uszkodzenie = false;
     };
 
@@ -331,7 +295,6 @@ public:
         this->czcionka = czcionka;
         this->informacje = &informacje;
         this->window = &window;
-        tempo = N;
         czylaser = false;
     };
     void start()
@@ -351,15 +314,6 @@ public:
                     if(event.key.code == sf::Keyboard::S){waz.obrot(CzescW::DOL);}
                     if(event.key.code == sf::Keyboard::A){waz.obrot(CzescW::LEWO);}
                     if(event.key.code == sf::Keyboard::D){waz.obrot(CzescW::PRAWO);}
-                    if(event.key.code == sf::Keyboard::Space){
-                        if(tempo == N){
-                            tempo = W;
-                            dzwieki.odtworz(Dzwiek::WOLNO);
-                        }
-                        else{tempo = N;dzwieki.odtworz(Dzwiek::SZYBKO);}
-                    if(event.key.code == sf::Keyboard::B){informacje->funkcja = Informacje::MENU;}
-
-                    }
                 }
             }
 
@@ -367,8 +321,6 @@ public:
             stanjablka();
             refreshpocisk();
 
-
-            //jablko.TeksturaJ(tekstura);
             sf::Vector2f mouse(sf::Mouse::getPosition(*window));
             if(pocisk.rec.getGlobalBounds().contains(mouse)){
                 pocisk.dezintegracja();
@@ -385,7 +337,6 @@ public:
             tekstura.setRepeated(true);
             sprite_grass.setTextureRect(sf::IntRect(0, 0, 800, 600));
             window->draw(sprite_grass);
-
             window->draw(waz);
             window->draw(pocisk.rec);
             rysjablka();
@@ -393,7 +344,7 @@ public:
 
         }
     };
-private:
+
 
     void rysjablka(){
         for(size_t i=0; i<jablka.size(); i++)
@@ -417,37 +368,6 @@ int zmieniajwynik()
         return waz.dlugosc * 3;
     };
 
-sf::Clock Rclock;
-sf::Time Rela;
-sf::Time RTR;
-enum Tempo { N = 10, W = 50 };
-Tempo tempo;
-void refresh()
-    {
-        Rela =Rclock.getElapsedTime();
-        RTR = sf::milliseconds(tempo);
-
-        if(Rela > RTR){
-            Rclock.restart();
-            waz.refreschwspolzedne();
-            waz.refreshczesci();
-            pocisk.refreshpozycjapocisku();
-        }
-    };
-sf::Clock Jclock;
-sf::Time Jela;
-sf::Time JTR;
-bool genjablka()
-{
-    JTR = sf::seconds(czasgenjablka);
-    Jela = Jclock.getElapsedTime();
-
-    if(Jela > JTR){
-        Jclock.restart();
-        return true;
-    }
-    return 0;
-};
 void stanjablka()
     {
         if(genjablka()) genejablka();
@@ -464,21 +384,57 @@ void zjedzone()
         {
             if(kolizja.JestKolizja(waz.czesci[0],jablka[i])){
                 if(jablka[i].zmianadlugosci + waz.dlugosc > 0){
-                    waz.rozmiarwaz(jablka[i].zmianadlugosci);
+                    waz.dlugoscwaz(jablka[i].zmianadlugosci);
                 }
                 else {
-                    waz.rozmiarwaz(waz.dlugosc * -1);
+                    waz.dlugoscwaz(waz.dlugosc * -1);
                 }
 
-                usun(i);
+                jablka.erase(jablka.begin() + i);
             }
         }
     };
-void usun(int itemNumber)
+void obciecie()
     {
-       jablka.erase(jablka.begin() + itemNumber);
+        if(pocisk.uszkodzenie){
+            for(size_t i=0; i<waz.czesci.size(); i++)
+            {
+                if(kolizja.JestKolizja(pocisk, waz.czesci[i])){
+                    waz.dlugoscwaz(-1 * (waz.czesci.size()-i-1));
+                }
+            }
+        }
+    };
+private:
+sf::Clock Rclock;
+sf::Time Rela;
+sf::Time RTR;
+void refresh()
+    {
+        Rela =Rclock.getElapsedTime();
+        RTR = sf::milliseconds(10);
+
+        if(Rela > RTR){
+            Rclock.restart();
+            waz.refreschwspolzedne();
+            waz.refreshczesci();
+            pocisk.refreshpozycjapocisku();
+        }
+    };
+sf::Clock Jclock;
+sf::Time Jela;
+sf::Time JTR;
+bool genjablka()
+{
+    JTR = sf::seconds(Informacje::czasgenjablka);
+    Jela = Jclock.getElapsedTime();
+
+    if(Jela > JTR){
+        Jclock.restart();
+        return true;
     }
-    ;
+    return 0;
+};
 sf::Clock Pclock;
 sf::Time Pela;
 sf::Time PTR;
@@ -507,7 +463,7 @@ void refreshpocisk()
     };
 bool strzal()
     {
-        PTR = sf::seconds(czaspocisku);
+        PTR = sf::seconds(Informacje::czaspocisku);
         Pela = Pclock.getElapsedTime();
 
         if(Pela > PTR){
@@ -518,19 +474,6 @@ bool strzal()
             return false;
         }
     };
-void obciecie()
-    {
-        if(pocisk.uszkodzenie){
-            for(size_t i=0; i<waz.czesci.size(); i++)
-            {
-                if(kolizja.JestKolizja(pocisk, waz.czesci[i])){
-                    waz.rozmiarwaz(-1 * (waz.czesci.size()-i-1));
-                }
-            }
-        }
-    };
-    static constexpr float czasgenjablka = 3.0;
-    static constexpr float czaspocisku = 5;
     sf::RenderWindow *window;
     sf::Texture tekstura;
     sf::Font czcionka;
@@ -550,12 +493,9 @@ public:
     Inicjalizacja()
     {
         window.create(sf::VideoMode(Informacje::SzerokoscOkna,Informacje::WysokoscOkna),Informacje::NazwaGry);
-        //Tekstury();
-        tekstura3.loadFromFile("Texture/teksturamenu.jpg");
+        tekstura1.loadFromFile("Texture/teksturamenu.jpg");
         tekstura2.loadFromFile("Texture/trawa.jpg");
-        czcionka.loadFromFile("data/Bleeding_Cowboys.ttf");
-
-        //czesc.ustawTekstura(tekstura3);
+        czcionka.loadFromFile("Baza/Bleeding_Cowboys.ttf");
 
         srand(time(NULL));
     };
@@ -564,13 +504,13 @@ void start(){
         {
             if(informacje.funkcja == Informacje::MENU)
             {
-                oknomenu Menu(window, informacje, czcionka, tekstura3);
+                oknomenu Menu(window, informacje, czcionka, tekstura1);
                 dzwiek.odtworz(Dzwiek::OKNA);
                 Menu.pokaz();
             }
             if(informacje.funkcja == Informacje::POMOC)
             {
-                oknopomocy pomoc(window, informacje , czcionka, tekstura3);
+                oknopomocy pomoc(window, informacje , czcionka, tekstura1);
                 dzwiek.odtworz(Dzwiek::OKNA);
                 pomoc.pokaz();
             }
@@ -583,7 +523,7 @@ void start(){
 
             if(informacje.funkcja == Informacje::WYNIK)
             {
-                oknowyniku wynik(window, informacje, czcionka, tekstura3);
+                oknowyniku wynik(window, informacje, czcionka, tekstura1);
                 dzwiek.odtworz(Dzwiek::OKNA);
                 wynik.pokaz();
             }
@@ -596,10 +536,8 @@ private:
 sf::RenderWindow window;
 Informacje informacje;
 sf::Font czcionka;
-//sf::Texture tekstura;
+sf::Texture tekstura1;
 sf::Texture tekstura2;
-sf::Texture tekstura3;
-//sf::Texture tekstura4;
 Dzwiek dzwiek;
 CzescW czesc;
 
